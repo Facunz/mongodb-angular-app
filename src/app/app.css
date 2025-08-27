@@ -105,3 +105,16 @@ footer a{ color: #dfe7f5; }
   main.container{ padding-top: 2rem; padding-bottom: 2rem; }
   .table{ border-spacing: 0 8px; }
 }
+
+/* Footer mejorado */
+.app-footer{ background: linear-gradient(180deg,#071224 0%, #0b1220 100%); color: #dfe7f5; position: relative; overflow: hidden; }
+.app-footer .container{ position: relative; z-index: 2; }
+.footer-accent{ height: 6px; background: linear-gradient(90deg,var(--utn-primary),var(--utn-secondary)); position: absolute; top: 0; left: 0; right: 0; }
+.footer-logo{ width:44px; height:44px; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg,var(--utn-primary),var(--utn-secondary)); box-shadow: 0 6px 18px rgba(16,24,40,0.12); }
+.footer-credits{ color: rgba(223,231,245,0.8); }
+.app-footer h6{ color: #fff; margin-bottom: 0; }
+.app-footer small.text-muted{ color: rgba(223,231,245,0.65); }
+
+.footer-credits-blue{ color: var(--utn-secondary); font-weight:600; }
+
+.footer-system-red{ color: #e63946; font-weight:600; }

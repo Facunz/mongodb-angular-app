@@ -116,7 +116,7 @@ export class App {
   async addItem() {
     const name = this.newName();
     if (!name) return; // Guard clause - salida temprana si no hay nombre
-    
+
     const payload = { name }; // Objeto con los datos a insertar
     // Inserta el nuevo registro y retorna los datos insertados
     const { data, error } = await supabase.from('escuela').insert(payload).select(); // .select() hace que retorne el registro insertado
