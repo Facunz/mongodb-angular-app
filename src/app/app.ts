@@ -1,5 +1,5 @@
 // Importaciones necesarias de Angular y cliente de Supabase
-import { Component, signal, effect, computed, OnDestroy } from '@angular/core';
+import { Component, signal, effect, computed, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 // RouterOutlet removed because this simple app doesn't use routing in the template
 import { CommonModule } from '@angular/common'; // Para usar directivas como *ngFor, *ngIf en el template
 import { supabase } from './supabase.client'; // Cliente configurado para conectar con Supabase
@@ -14,7 +14,7 @@ type Escuela = { id: number; name: string }; // TypeScript nos ayuda a tener tip
   templateUrl: './app.html', // Archivo HTML del template
   styleUrl: './app.css', // Archivo CSS de estilos específicos
 })
-export class App {
+export class App implements OnInit, AfterViewInit, OnDestroy {
   // Título de la aplicación usando signal reactivo
   protected readonly title = signal('Gestión de Escuelas'); // 'protected' permite acceso desde el template
 
@@ -28,6 +28,7 @@ export class App {
 
   // Referencia al canal de tiempo real de Supabase
   private realtimeChannel: any = null; // 'any' porque el tipo exacto es complejo
+  // (hooks simplificados: sin timers ni manipulación del DOM)
 
   // Constructor que inicializa el componente
   constructor() {
@@ -36,6 +37,8 @@ export class App {
     // Configura las actualizaciones en tiempo real
     this.setupRealtime(); // Se ejecuta en paralelo con loadItems()
   }
+
+  // ...existing code...
   // Configura la suscripción a cambios en tiempo real de la tabla 'escuela'
   // Subscribirse a cambios en la tabla 'escuela' y actualizar 
   // el estado local
@@ -145,6 +148,7 @@ export class App {
   async updateItem(id: number, patch: Partial<Escuela>) { // Partial<T> significa que todas las propiedades son opcionales
     // Ejecuta la actualización en la base de datos y retorna los datos actualizados
     const { data, error } = await supabase.from('escuela').update(patch).eq('id', id).select(); // update() + eq() + select()
+
     if (error) {
       console.error('update error', error);
       return;
@@ -157,15 +161,57 @@ export class App {
   }
 
   // Limpia la suscripción de tiempo real cuando el componente se destruye
-  ngOnDestroy(): void { // Método del ciclo de vida de Angular - se ejecuta antes de destruir el componente
+  ngOnDestroy(): void {
+    // Limpieza final: canales y timers
     try {
       if (this.realtimeChannel) {
-        // Remueve el canal de tiempo real para evitar memory leaks
-        supabase.removeChannel(this.realtimeChannel); // Importante: siempre limpiar suscripciones para evitar memory leaks
-        this.realtimeChannel = null; // Resetea la referencia
+        supabase.removeChannel(this.realtimeChannel);
+        this.realtimeChannel = null;
       }
     } catch (err) {
-      console.warn('Failed to remove realtime channel', err); // warn() en lugar de error() porque no es crítico
+      console.warn('Failed to remove realtime channel', err);
     }
+
+  console.log('🗑️ ngOnDestroy: limpieza completa');
+  }
+
+  // ------------------------------------------------------------------
+  // Hooks movidos al final con ejemplos llamativos
+  // ------------------------------------------------------------------
+  ngOnInit(): void {
+    // Hook mínimo: inicializaciones ligeras
+    console.log('ngOnInit');
+  }
+
+  ngAfterViewInit(): void {
+    // Hook mínimo: post-render
+    console.log('ngAfterViewInit');
   }
 }
+
+
+/*
+Actividad: Ampliación de la base de datos y uso de nuevos campos
+
+Objetivo: agregar 5 campos nuevos a la tabla escuela y usarlos en la app Angular con Supabase.
+
+1) Agregar campos en Supabase:
+
+direccion (texto), localidad (texto), telefono (texto), email (texto), fecha_fundacion (fecha).
+
+2) Actualizar la app Angular:
+
+Extender el modelo escuela con los 5 campos.
+
+Modificar formulario de alta/edición para capturarlos.
+
+Mostrar en la lista name, localidad, telefono y en detalles los demás.
+
+Probar realtime:
+
+Abrir dos pestañas y verificar que INSERT/UPDATE/DELETE se reflejen en ambas.
+
+Entregar:
+
+Captura de tabla en Supabase, capturas del formulario y de la lista funcionando, y un breve comentario sobre la experiencia.
+*/
